@@ -150,7 +150,7 @@
   Hoppá! Sajnos a rendszer benyelte a fizetésed! <br>
   🍊Orbit elvitte a pézt!4!🍊
 </div>
-
+  <img id="movingImg" src="meszi.png" alt="mozgó kép" style="max-width: 220px; position: fixed; bottom: 20px; left:0; transform: scaleY(1); z-index:1000; display:none;">
   <script>
     (function(){
       const grossInput = document.getElementById('gross');
@@ -199,8 +199,59 @@
         if (val) grossInput.value = new Intl.NumberFormat('hu-HU').format(val);
       });
     })();
-  </script>
 
+  </script>
+  <script>
+    const img = document.getElementById('movingImg');
+    const speed = 2; // pixel/frame
+    let direction = 1; // 1 = jobbra, -1 = balra
+    let moving = false; // csak ha gomb megnyomva
+
+    function moveImage() {
+      if (!moving) return; // ha még nem indult, semmit sem csinál
+      const currentLeft = img.offsetLeft;
+      const screenWidth = window.innerWidth;
+      const imgWidth = img.offsetWidth;
+
+      let nextLeft = currentLeft + speed * direction;
+
+      // ha elérte a képernyő szélét → irányt vált
+      if (nextLeft + imgWidth >= screenWidth) {
+        direction = -1;
+        img.style.transform = 'scaleX(-1)';
+        nextLeft = screenWidth - imgWidth;
+      } else if (nextLeft <= 0) {
+        direction = 1;
+        img.style.transform = 'scaleX(1)';
+        nextLeft = 0;
+      }
+
+      img.style.left = nextLeft + 'px';
+      requestAnimationFrame(moveImage);
+    }
+
+    // a „Számolás” gomb eseményében:
+    const form = document.getElementById('form');
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+
+      // a számítás/kép megjelenítés itt történik (pl. nettoEl.innerHTML = ...)
+      const nettoEl = document.getElementById('netto');
+      nettoEl.innerHTML = `<img src="meme.jpg" alt="eredmény" style="max-width:600px;">`;
+
+      // mozgó alsó kép elindítása
+      if (!moving) {
+        moving = true;
+        img.style.display = 'block';
+        requestAnimationFrame(moveImage);
+      }
+
+      // 2 másodperc múlva lebegő hibaüzenet (korábbi kódod)
+      const errorMsg = document.getElementById('errorMsg');
+      errorMsg.hidden = true;
+      setTimeout(()=>{ errorMsg.hidden = false; }, 2000);
+    });
+  </script>
   <script>
     // Ide írd be a PNG képeid elérési útját
     const images = [
