@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nettó kalkulátor</title>
+  <title>FIDESZ kalkulátor</title>
   <style>
     :root{
       --bg: #0b1020;
@@ -47,6 +47,19 @@
       100% { transform: translateY(110vh) rotate(360deg); opacity:0; }
     }
 
+    @media (max-width: 480px) {
+      .card {
+        padding: 16px;
+        border-radius: 12px;
+      }
+      #errorMsg {
+        font-size: 20px;
+        padding: 20px;
+      }
+      #movingImg {
+        width: 60px;
+      }
+    }
     .card{
       width: 100%; 
       max-width: 720px; 
