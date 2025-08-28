@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Az első oldalam</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="container">
+    <h1>Helló, világ! 👋</h1>
+    <p>Egy egyszerű, statikus oldal HTML + CSS-sel.</p>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Rólam</h2>
+      <p>Itt egy rövid bemutatkozás szöveg.</p>
+    </section>
+
+    <section class="card">
+      <h2>Kapcsolat</h2>
+      <ul>
+        <li>Email: te@pelda.hu</li>
+        <li>Instagram: @te</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="container">
+    <small>© <span id="year"></span> Saját Név</small>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
