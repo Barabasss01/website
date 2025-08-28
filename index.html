@@ -2,37 +2,135 @@
 <html lang="hu">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Az első  adadada oldalam</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nettó kalkulátor</title>
+  <style>
+    :root{
+      --bg: #0b1020;
+      --card: #111731;
+      --muted: #9aa3b2;
+      --text: #e8ecf4;
+      --accent: #6ea8fe;
+      --accent-2: #82f5c2;
+      --ring: rgba(110,168,254,.45);
+      --shadow: 0 10px 25px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.2);
+    }
+    * { box-sizing: border-box; }
+    body{
+      margin:0; background: radial-gradient(1200px 600px at 10% -10%, #1a2244 0%, transparent 60%),
+                         radial-gradient(1000px 500px at 110% 0%, #0e4e52 0%, transparent 55%),
+                         var(--bg);
+      color: var(--text);
+      font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+      min-height: 100svh; display:grid; place-items:center; padding: 24px;
+    }
+    .card{
+      width: 100%; max-width: 720px; background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)), var(--card);
+      border: 1px solid rgba(255,255,255,.06); border-radius: 20px; box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    header{ padding: 28px 28px 12px; }
+    header h1{ margin:0; font-size: clamp(22px, 4vw, 28px); letter-spacing: .2px; }
+    form{ padding: 0 28px 24px; display:grid; gap: 16px; }
+    label{ font-weight: 300; }
+    .field{
+      position: relative; display:flex; align-items:center; background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 10px 14px; gap: 10px;
+    }
+    .field:focus-within{ outline: 2px solid var(--ring); box-shadow: 0 0 0 4px rgba(110,168,254,.15) inset; }
+    .field input{
+      flex:1; border:0; outline:0; background:transparent; color:var(--text); font-size:18px;
+    }
+    .suffix{ color: var(--muted); font-weight:600; }
+    .actions{ display:flex; gap:12px; align-items:center; }
+    button{
+      appearance:none; border:0; padding: 12px 16px; border-radius: 12px; font-weight:700; cursor:pointer;
+      background: linear-gradient(180deg, rgba(130,245,194,.2), rgba(130,245,194,.12)); color:#dffef1;
+      border: 1px solid rgba(130,245,194,.35);
+      transition: transform .06s ease, filter .2s ease;
+    }
+    button:hover{ filter: brightness(1.1); }
+    button:active{ transform: translateY(1px); }
+    .ghost{ background: transparent; color: var(--muted); border:1px dashed rgba(255,255,255,.18); font-weight:600; }
+
+    .results{ padding: 20px 28px 28px; background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)); border-top: 1px solid rgba(255,255,255,.06); display:grid; gap:12px; }
+    .result-line{ font-size: 20px; font-weight: bold; background: rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); padding:12px 14px; border-radius:12px; color: #6ea8fe; }
+    .result-line .label{ display:block; font-size: 16px; margin-bottom: 4px; }
+    .number{ font-weight:800; letter-spacing:.2px; }
+    .note{ font-size: 14px; margin-top: 4px; color: var(--muted); }
+  </style>
 </head>
 <body>
-  <header class="container">
-    <h1>Helló, világ! 👋</h1>
-    <p>Egy egyszerű, statikus oldal HTML + CSS-sel.</p>
-  </header>
+  <main class="card" role="region" aria-labelledby="title">
+    <header>
+      <h1 id="title">Nettó kalkulátor</h1>
+    </header>
 
-  <main class="container">
-    <section class="card">
-      <h2>Rólam</h2>
-      <p>Itt egy rövid bemutatkozás szöveg.</p>
-    </section>
+    <form id="form" novalidate>
+      <label for="gross">Add meg a bruttó fizetésed:</label>
+      <div class="field">
+        <input id="gross" name="gross" type="text" inputmode="numeric" placeholder="pl. 450 000" autocomplete="off" />
+        <div class="suffix">Ft / hó</div>
+      </div>
 
-    <section class="card">
-      <h2>Kapcsolat</h2>
-      <ul>
-        <li>Email: te@pelda.hu</li>
-        <li>Instagram: @te</li>
-      </ul>
+      <div class="actions">
+        <button type="submit">Számolás</button>
+        <button type="button" class="ghost" id="clearBtn" aria-label="Mező törlése">Törlés</button>
+      </div>
+    </form>
+
+    <section class="results" id="results" hidden>
+      <div class="result-line">
+        <span class="label">Becsült nettó jövedelmed havonta:</span>
+        <span class="number" id="netto"></span>
+      </div>
+      <div class="note">
+        Ez egy egyszerűsített számítás, csak 15% SZJA-val számol, más levonásokat (TB, nyugdíj) nem tartalmaz.
+      </div>
     </section>
   </main>
 
-  <footer class="container">
-    <small>© <span id="year"></span> Saját Név</small>
-  </footer>
-
   <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
+    (function(){
+      const grossInput = document.getElementById('gross');
+      const form = document.getElementById('form');
+      const results = document.getElementById('results');
+      const nettoEl = document.getElementById('netto');
+      const clearBtn = document.getElementById('clearBtn');
+
+      // Számformázás
+      const formatHUF = (n) => new Intl.NumberFormat('hu-HU').format(Math.round(n)) + " Ft";
+
+      function parseHUF(value){
+        if (!value) return NaN;
+        const digits = String(value).replace(/[^\d]/g, '');
+        return digits ? Number(digits) : NaN;
+      }
+
+      function calc(){
+        const gross = parseHUF(grossInput.value);
+        if (!gross || gross <= 0) {
+          results.hidden = true;
+          return;
+        }
+        const netto = gross * 0.85; // egyszerű 15% adó
+        nettoEl.textContent = formatHUF(netto) + " / hó";
+        results.hidden = false;
+      }
+
+      form.addEventListener('submit', (e)=>{ e.preventDefault(); calc(); });
+      grossInput.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') { e.preventDefault(); calc(); }});
+      clearBtn.addEventListener('click', ()=>{
+        grossInput.value = '';
+        results.hidden = true;
+        grossInput.focus();
+      });
+
+      grossInput.addEventListener('blur', ()=>{
+        const val = parseHUF(grossInput.value);
+        if (val) grossInput.value = new Intl.NumberFormat('hu-HU').format(val);
+      });
+    })();
   </script>
 </body>
 </html>
