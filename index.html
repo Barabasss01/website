@@ -16,13 +16,45 @@
       --shadow: 0 10px 25px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.2);
     }
     * { box-sizing: border-box; }
+
     body{
-      margin:0; background: radial-gradient(1200px 600px at 10% -10%, #1a2244 0%, transparent 60%),
-                         radial-gradient(1000px 500px at 110% 0%, #0e4e52 0%, transparent 55%),
-                         var(--bg);
+      margin:0;
+      background: radial-gradient(1200px 600px at 10% -10%, #ffb347 0%, transparent 60%),
+                 radial-gradient(1000px 500px at 110% 0%, #ffcc33 0%, transparent 55%),
+                 var(--bg);
+      font: 16px/1.5 system-ui, sans-serif;
+      min-height: 100vh;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      position:relative;
       color: var(--text);
-      font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
-      min-height: 100svh; display:grid; place-items:center; padding: 24px;
+    }
+
+    .falling {
+      position: absolute;
+      top: -100px;
+      width: 60px;
+      height: 60px;
+      pointer-events: none;
+      animation-name: fall;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes fall {
+      0%   { transform: translateY(-100px) rotate(0deg); opacity:1; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity:0; }
+    }
+
+    .card{
+      width: 100%; 
+      max-width: 720px; 
+      background: rgba(0,0,0,0.4);
+      border-radius: 20px; 
+      padding: 20px;
+      position: relative;
+      z-index: 10; /* hogy a lehulló képek mögötte legyenek */
     }
     .card{
       width: 100%; max-width: 720px; background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)), var(--card);
@@ -30,7 +62,7 @@
       overflow: hidden;
     }
     header{ padding: 28px 28px 12px; }
-    header h1{ margin:0; font-size: clamp(22px, 4vw, 28px); letter-spacing: .2px; }
+    header h1{ margin:0; font-size: clamp(22px, 4vw, 28px); letter-spacing: .2px; color: #ff9a3c;}
     form{ padding: 0 28px 24px; display:grid; gap: 16px; }
     label{ font-weight: 300; }
     .field{
@@ -131,6 +163,28 @@
         if (val) grossInput.value = new Intl.NumberFormat('hu-HU').format(val);
       });
     })();
+  </script>
+  <script>
+    // Ide írd be a PNG képeid elérési útját
+    const images = [
+      "fidesz1.png"
+    ];
+
+    function createFallingImage(){
+      const img = document.createElement("img");
+      img.src = images[Math.floor(Math.random() * images.length)];
+      img.className = "falling";
+      img.style.left = Math.random() * 100 + "vw";
+      img.style.animationDuration = (5 + Math.random() * 5) + "s";
+      img.style.transform = `rotate(${Math.random()*360}deg)`;
+      document.body.appendChild(img);
+
+      // Ha leesett, töröljük
+      img.addEventListener("animationend", ()=> img.remove());
+    }
+
+    // Minden 1 másodpercben új kép hullik
+    setInterval(createFallingImage, 1000);
   </script>
 </body>
 </html>
