@@ -157,7 +157,7 @@
       </div>
     </section>
   </main>
-
+  <audio id="clickSound" src="hang.mp3" preload="auto" loop></audio>
 <!-- Középre lebegő hibaüzenet -->
 <div id="errorMsg" class="error-overlay" hidden style="text-align: center;">
   Hoppá! Sajnos a rendszer benyelte a fizetésed! <br>
@@ -247,6 +247,10 @@
     const form = document.getElementById('form');
     form.addEventListener('submit', (e)=>{
       e.preventDefault();
+
+      clickSound.currentTime = 0; // ha gyorsan nyomják, mindig az elejéről induljon
+      clickSound.play();
+
 
       // a számítás/kép megjelenítés itt történik (pl. nettoEl.innerHTML = ...)
       const nettoEl = document.getElementById('netto');
