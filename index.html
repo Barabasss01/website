@@ -90,12 +90,35 @@
     .result-line .label{ display:block; font-size: 16px; margin-bottom: 4px; }
     .number{ font-weight:800; letter-spacing:.2px; }
     .note{ font-size: 14px; margin-top: 4px; color: var(--muted); }
+    .error-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: #ff4d4d;
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    padding: 30px 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    z-index: 9999;
+    opacity: 0;
+    animation: popIn 0.5s ease-out forwards;
+  }
+
+  @keyframes popIn {
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
   </style>
 </head>
 <body>
   <main class="card" role="region" aria-labelledby="title">
     <header>
-      <h1 id="title">Nettó kalkulátor</h1>
+      <h1 id="title">FIDESZ kalkulátor</h1>
     </header>
 
     <form id="form" novalidate>
@@ -117,10 +140,16 @@
         <span class="number" id="netto"></span>
       </div>
       <div class="note">
-        Ez egy egyszerűsített számítás, csak 15% SZJA-val számol, más levonásokat (TB, nyugdíj) nem tartalmaz.
+        Ez egy egyszerűsített számítás, csak két harmaddal számol.
       </div>
     </section>
   </main>
+
+<!-- Középre lebegő hibaüzenet -->
+<div id="errorMsg" class="error-overlay" hidden style="text-align: center;">
+  Hoppá! Sajnos a rendszer benyelte a fizetésed! <br>
+  🍊Orbit elvitte a pézt!4!🍊
+</div>
 
   <script>
     (function(){
@@ -129,9 +158,7 @@
       const results = document.getElementById('results');
       const nettoEl = document.getElementById('netto');
       const clearBtn = document.getElementById('clearBtn');
-
-      // Számformázás
-      const formatHUF = (n) => new Intl.NumberFormat('hu-HU').format(Math.round(n)) + " Ft";
+      const errorMsg = document.getElementById('errorMsg');
 
       function parseHUF(value){
         if (!value) return NaN;
@@ -143,11 +170,19 @@
         const gross = parseHUF(grossInput.value);
         if (!gross || gross <= 0) {
           results.hidden = true;
+          errorMsg.hidden = true;
           return;
         }
-        const netto = gross * 0.85; // egyszerű 15% adó
-        nettoEl.textContent = formatHUF(netto) + " / hó";
+
+        // Kép megjelenítése
+        nettoEl.innerHTML = `<img src="meme.jpg" alt="eredmény" style="max-width:600px; max-height:400px;">`;
         results.hidden = false;
+        errorMsg.hidden = true;
+
+        // 2 másodperc múlva hibaüzenet
+        setTimeout(()=>{
+          errorMsg.hidden = false;
+        }, 2000);
       }
 
       form.addEventListener('submit', (e)=>{ e.preventDefault(); calc(); });
@@ -155,6 +190,7 @@
       clearBtn.addEventListener('click', ()=>{
         grossInput.value = '';
         results.hidden = true;
+        errorMsg.hidden = true;
         grossInput.focus();
       });
 
@@ -164,6 +200,7 @@
       });
     })();
   </script>
+
   <script>
     // Ide írd be a PNG képeid elérési útját
     const images = [
